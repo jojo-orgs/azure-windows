@@ -28,7 +28,7 @@ variable "vm_size" {
   default     = "Standard_B1s"
 }
 
-variable "source_image_reference" {
+variable "image_reference" {
   type = object({
     publisher = string
     offer     = string
@@ -44,7 +44,7 @@ variable "source_image_reference" {
   }
 }
 
-variable "os_disk" {
+variable "disk" {
   type = object({
     caching              = string
     storage_account_type = string

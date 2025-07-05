@@ -72,10 +72,7 @@ resource "azurerm_network_interface_security_group_association" "example" {
 }
 
 resource "azurerm_windows_virtual_machine" "main" {
-  for_each = toset([
-    "${var.name}VM-1",
-  ])
-  name                  = each.value
+  name                  = "${var.name}-vnet"
   location              = azurerm_resource_group.joseph-rg.location
   resource_group_name   = azurerm_resource_group.joseph-rg.name
   network_interface_ids = [azurerm_network_interface.joseph.id]
@@ -85,16 +82,22 @@ resource "azurerm_windows_virtual_machine" "main" {
   size                  = var.vm_size
   tags                  = var.tags
 
-  source_image_reference {
-    publisher = var.source_image_reference.publisher
-    offer     = var.source_image_reference.offer
-    sku       = var.source_image_reference.sku
-    version   = var.source_image_reference.version
+  dynamic source_image_reference {
+    for_each = [var.image_reference]
+    content {
+    publisher = source_image_reference.value.publisher
+    offer     = source_image_reference.value.offer
+    sku       = source_image_reference.value.sku
+    version   = source_image_reference.value.version
+    }
   }
 
-  os_disk {
-    caching              = var.os_disk.caching
-    storage_account_type = var.os_disk.storage_account_type
-    disk_size_gb         = var.os_disk.disk_size_gb
+  dynamic os_disk {
+    for_each = [var.disk]
+    content {
+    caching              = os_disk.value.caching
+    storage_account_type = os_disk.value.storage_account_type
+    disk_size_gb         = os_disk.value.disk_size_gb
+    }
   }
 }
